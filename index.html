@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>ALT YouTube</title>
+    <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+    <div class="header">
+        <div class="logo">
+            <img src="../static/logo.png" alt="Nothing">
+        </div>
+        <div class="search-bar">
+            <input type="text" id="search-input" placeholder="Search for videos...">
+            <button id="search-button" aria-label="Search">🔍</button>
+        </div>
+    </div>
+    <div class="video-container">
+        {% for video in videos if "Video unavailable" not in video %}
+        <div class="video-box" id="{{ loop.index }}" data-embed-url="{{ video.EmbedURL }}" data-category="{{ video['Category'] }}>
+            <a href="/recommendations?video_id={{ video.EmbedURL.split('/')[4] }}">
+                <div class="thumbnail">
+                    <img src="https://img.youtube.com/vi/{{ video.EmbedURL.split('/')[4] }}/0.jpg" alt="Video Thumbnail">
+                </div>
+            </a>
+            <div class="video-details">
+                <h2 class="video-title">{{ video.Title }}</h2>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+    <button id="load-more" data-page="2">Load More</button>
+
+
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            const loadMoreButton = document.getElementById("load-more");
+            let page = 2;            
+            loadMoreButton.addEventListener("click", function () {
+          // Use a fetch request to load more videos
+          fetch(`/?page=${page}`)
+            .then((response) => response.text())
+            .then((data) => {
+              const parser = new DOMParser();
+              const doc = parser.parseFromString(data, "text/html");
+              const newVideos = doc.querySelectorAll(".video-box");
+              if (newVideos.length > 0) {
+                newVideos.forEach((video) => {
+                  document.querySelector(".video-container").appendChild(video);
+                });
+                page++; // Increment the page counter for the next load
+              } else {
+                loadMoreButton.style.display = "none";
+              }
+            })
+            .catch((error) => console.error(error));
+        });
+    
+            function performSearch() {
+                const searchInput = document.getElementById("search-input");
+                const searchQuery = searchInput.value.toLowerCase();
+    
+                const filteredVideos = Array.from(document.querySelectorAll(".video-box")).filter(video => {
+                    const title = video.querySelector("h2").textContent.toLowerCase();
+                    return title.includes(searchQuery);
+                });
+    
+                document.querySelectorAll(".video-box").forEach(video => {
+                    if (filteredVideos.includes(video)) {
+                        video.style.display = "block";
+                    } else {
+                        video.style.display = "none";
+                    }
+                });
+            }
+    
+            document.getElementById("search-button").addEventListener("click", performSearch);
+            document.getElementById("search-input").addEventListener("input", performSearch);
+    
+            document.querySelectorAll('.video-box').forEach(box => {
+    box.addEventListener('click', function () {
+        const videoId = box.dataset.embedUrl.split('/')[4];
+        window.location.href = `/recommendations?video_id=${videoId}`;
+    });
+});
+    
+            function closeFullscreen() {
+                const fullscreenVideo = document.getElementById('fullscreen-video');
+                fullscreenVideo.style.display = 'none';
+                document.getElementById('video-iframe').src = '';
+            }
+        });
+        document.addEventListener("DOMContentLoaded", function () {
+        function populateRecommendedVideos(recommendedVideos) {
+            const recommendationsContainer = document.getElementById('recommended-videos-container');
+            recommendationsContainer.innerHTML = ''; // Clear previous recommendations
+
+            recommendedVideos.forEach(video => {
+                const videoBox = document.createElement('div');
+                videoBox.className = 'video-box';
+                videoBox.innerHTML = `
+                    <iframe src="${video.EmbedURL}" frameborder="0" allow="autoplay; encrypted-media" allowfullscreen></iframe>
+                    <div class="video-details">
+                        <h2 class="video-title">${video.Title}</h2>
+                    </div>
+                `;
+                recommendationsContainer.appendChild(videoBox);
+            });
+        }
+
+        function handleVideoClick(iframe) {
+            const category = iframe.parentNode.getAttribute('data-category');
+
+            fetch('/get_recommendations', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({Category: category }) // Pass the video ID
+            })
+            .then(response => response.json())
+            .then(data => populateRecommendedVideos(data))
+            .catch(error => console.error('Error fetching recommended videos'));
+        }
+
+        // Attach click event listener to each video box
+        document.querySelectorAll('.video-box').forEach(box => {
+            const iframe = box.querySelector('iframe');
+            box.addEventListener('click', function () {
+                // Open the video in fullscreen
+                openFullscreen(iframe);
+                // Fetch and display recommendations
+                handleVideoClick(iframe);
+            });
+        });
+    });
+    </script>
+
+</body>
+</html>
