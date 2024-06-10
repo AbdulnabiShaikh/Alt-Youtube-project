@@ -1,0 +1,109 @@
+body {
+    font-family: Arial, sans-serif;
+    margin: 0;
+}
+
+.header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 10px;
+    background-color: #f8f9fa; /* Adjust background color as needed */
+}
+
+/* Style for logo */
+.logo img {
+    height: 40px; /* Set the height of the logo */
+}
+
+/* Style for search bar */
+.search-bar {
+    display: flex;
+    align-items: center;
+}
+
+.search-bar input[type="text"] {
+    padding: 8px;
+    border: 1px solid #ccc; /* Add border */
+    border-radius: 5px; /* Add border radius */
+    margin-right: 5px;
+}
+
+.search-bar button {
+    padding: 8px;
+    background-color: #007bff; /* Set background color for button */
+    color: white; /* Set text color */
+    border: none;
+    border-radius: 5px; /* Add border radius */
+    cursor: pointer;
+}
+
+.video-container {
+display: flex;
+flex-wrap: wrap;
+gap: 20px;
+}
+
+.video-box {
+width: calc(33.33% - 20px);
+margin-bottom: 20px;
+border-radius: 15px;
+overflow: hidden;
+box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
+margin-left: 6px;
+}
+
+.video-box iframe {
+width: 100%;
+height: 250px;
+cursor: pointer;
+}
+
+.video-details {
+padding: 10px;
+}
+
+.video-title {
+font-weight: bold;
+margin-top: 10px;
+}
+
+.video-link {
+text-decoration: none;
+cursor: pointer;
+color: inherit;
+}
+
+#fullscreen-video {
+width: 70vw; /* Set width to 70% of viewport width */
+height: 39.375vw; /* Maintain 16:9 aspect ratio (70 * 9 / 16) */
+position: fixed;
+top: 0;
+left: 0;
+background-color: #000;
+z-index: 9999;
+display: none; /* Initially hide */
+padding: 10px;
+box-sizing: border-box;
+margin: 0;
+}
+
+
+#back-button {
+position: absolute;
+top: 10px;
+left: 10px;
+background-color: rgba(255, 255, 255, 0.5);
+color: #000;
+border: none;
+padding: 5px 10px;
+font-size: 18px;
+cursor: pointer;
+z-index: 10000; /* Ensure back button is above the video */
+}
+
+#video-iframe {
+width: 100%;
+height: 100%;
+z-index: 9998; /* Ensure video is behind the back button */
+}
